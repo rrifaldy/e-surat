@@ -5,11 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\SuratMasukAdmin;
 use App\Models\SuratKeluarAdmin;
 use App\Models\SuratMasukDesa;
+use App\Models\SuratDisposisiCamat;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use setasign\Fpdi\Fpdi;
+use setasign\Fpdf\Fpdf;
 
 class SuratAdminController extends Controller
 {
@@ -114,7 +118,6 @@ class SuratAdminController extends Controller
         return view('Admin.SuratKeluar.DetailSuratKeluar', compact('suratKeluar'));
     }
 
-
     public function createKeluar()
     {
         return view('Admin.SuratKeluar.TambahSuratKeluar');
@@ -140,22 +143,19 @@ class SuratAdminController extends Controller
         // Buat surat keluar di tabel SuratKeluarAdmin
         $suratKeluar = SuratKeluarAdmin::create($validatedData);
 
-        // Tambahkan data ke SuratMasukDesa jika tujuan adalah desa
-        if (str_contains($validatedData['tujuan_surat'], 'Desa')) {
-            SuratMasukDesa::create([
-                'nomor_surat' => $validatedData['nomor_surat'],
-                'pengirim' => "Admin Kecamatan",
-                'penerima' => $validatedData['tujuan_surat'],
-                'tanggal_surat' => $validatedData['tanggal_surat'],
-                'perihal' => $validatedData['perihal'],
-                'sifat' => $validatedData['sifat'],
-                'lampiran' => $validatedData['lampiran'],
-                'id_surat_keluar' => $suratKeluar->id, // Relasi ke SuratKeluarAdmin
-            ]);
-        }
-
-        // Redirect kembali ke halaman daftar surat keluar
-        return redirect()->route('surat-admin.indexKeluar')->with('success', 'Surat keluar berhasil dikirim ke surat masuk desa.');
+        // Tambahkan surat ke tabel SuratDisposisiCamat dengan status "Belum Ditandatangani"
+        SuratDisposisiCamat::create([
+            'id_surat_keluar' => $suratKeluar->id,
+            'nomor_surat' => $validatedData['nomor_surat'],
+            'pengirim' => "Admin Kecamatan",
+            'penerima' => $validatedData['tujuan_surat'],
+            'tanggal_surat' => $validatedData['tanggal_surat'],
+            'perihal' => $validatedData['perihal'],
+            'sifat' => $validatedData['sifat'],
+            'lampiran' => $validatedData['lampiran'] ?? null,
+            'status' => 'Belum Ditandatangani',
+        ]);
+        return redirect()->route('surat-admin.indexKeluar')->with('success', 'Surat keluar berhasil dibuat.');
     }
 
     public function editKeluar($id)
@@ -334,6 +334,68 @@ class SuratAdminController extends Controller
     public function createKeluarCamat()
     {
         return view('Camat.SuratKeluar.TambahSuratKeluar');
+    }
+
+    public function indexDisposisiCamat()
+    {
+        $suratDisposisi = SuratDisposisiCamat::all();
+        
+        return view('Camat.SuratDisposisi.SuratDisposisi', compact('suratDisposisi'));
+    }
+
+    public function detailDisposisiCamat($id)
+    {
+        $suratDisposisi = SuratDisposisiCamat::findOrFail($id);
+
+        return view('Camat.SuratDisposisi.DetailSuratDisposisi', compact('suratDisposisi'));
+    }
+
+    public function kirimDisposisi($id)
+    {
+        $suratDisposisi = SuratDisposisiCamat::findOrFail($id);
+        $suratDisposisi->update(['status' => 'Sudah Ditandatangani']);
+
+        $suratKeluar = SuratKeluarAdmin::where('nomor_surat', $suratDisposisi->nomor_surat)->first();
+        if ($suratKeluar) {
+            $suratKeluar->update(['status' => 'Sudah Ditandatangani']);
+        }
+
+        $folderPath = storage_path('app/public/lampiran_surat_keluar');
+        if (!file_exists($folderPath)) {
+            mkdir($folderPath, 0777, true);
+        }
+
+        $pathPdfTtd = $folderPath . '/surat_disposisi_ttd_' . str_replace('/', '_', $suratDisposisi->nomor_surat) . '.pdf';
+
+        $pdf = new Fpdi();
+        $pageCount = $pdf->setSourceFile(storage_path('app/public/' . $suratDisposisi->lampiran));
+        $ttdPath = public_path('images/ttd-camat.png');
+
+        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+            $pdf->AddPage();
+            $tplId = $pdf->importPage($pageNo);
+            $pdf->useTemplate($tplId);
+
+            $pdf->Image($ttdPath, 135, 220, 60, 40);
+        }
+
+        $pdfContent = $pdf->Output('', 'S');
+        file_put_contents($pathPdfTtd, $pdfContent);
+
+        if (str_contains($suratDisposisi->penerima, 'Desa')) {
+            SuratMasukDesa::create([
+                'nomor_surat' => $suratDisposisi->nomor_surat,
+                'pengirim' => "Kecamatan Mekarmukti",
+                'penerima' => $suratDisposisi->penerima,
+                'tanggal_surat' => $suratDisposisi->tanggal_surat,
+                'perihal' => $suratDisposisi->perihal,
+                'sifat' => $suratDisposisi->sifat,
+                'lampiran' => 'lampiran_surat_keluar/' . basename($pathPdfTtd),
+                'id_surat_keluar' => $suratDisposisi->id_surat_keluar,
+            ]);
+        }
+
+        return redirect()->route('surat-camat.indexDisposisiCamat')->with('success', 'Surat berhasil ditandatangani dan dikirim.');
     }
 
     public function laporanSuratMasukCamat()

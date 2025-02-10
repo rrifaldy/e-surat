@@ -70,6 +70,12 @@ Route::put('/surat-keluar-camat/update/{id}', [SuratAdminController::class, 'upd
 Route::get('/surat-keluar-camat/create', [SuratAdminController::class, 'createKeluarCamat'])->name('surat-camat.createKeluarCamat');
 Route::post('/surat-keluar-camat/store', [SuratAdminController::class, 'storeKeluarCamat'])->name('surat-camat.storeKeluarCamat');
 
+// Camat: Surat Disposisi
+Route::get('/surat-disposisi-camat', [SuratAdminController::class, 'indexDisposisiCamat'])->name('surat-camat.indexDisposisiCamat');
+Route::get('/surat-disposisi-camat/{id}', [SuratAdminController::class, 'detailDisposisiCamat'])->name('surat-camat.detailDisposisi');
+Route::post('/surat-camat/kirim/{id}', [SuratAdminController::class, 'kirimDisposisi'])->name('surat-camat.kirimDisposisi');
+
+
 Route::get('/laporan-surat-masuk-camat', [SuratAdminController::class, 'laporanSuratMasukCamat'])->name('camat.laporanSuratMasuk');
 Route::get('/laporan-surat-keluar-camat', [SuratAdminController::class, 'laporanSuratKeluarCamat'])->name('camat.laporanSuratKeluar');
 // Desa

@@ -1,4 +1,5 @@
 @extends('layouts.SidebarCamat')
+
 @section('content')
 
 @if(session('success'))
@@ -21,7 +22,7 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Data Surat Keluar</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Data Surat Disposisi</h6>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -30,28 +31,29 @@
                     <tr>
                         <th>No</th>
                         <th>Nomor Surat</th>
-                        <th>Tujuan</th>
-                        <th>Tanggal Kirim</th>
+                        <th>Pengirim</th>
+                        <th>Penerima</th>
+                        <th>Tanggal Terima</th>
                         <th>Perihal</th>
+                        <th>Status</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($suratKeluar as $index => $surat)
+                    @foreach($suratDisposisi as $index => $surat)
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $surat->nomor_surat }}</td>
-                        <td>{{ $surat->tujuan_surat }}</td>
+                        <td>{{ $surat->pengirim }}</td>
+                        <td>{{ $surat->penerima }}</td>
                         <td>{{ $surat->tanggal_surat }}</td>
                         <td>{{ $surat->perihal }}</td>
+                        <td>{{ $surat->status }}</td>
                         <td>
                             <div class="d-flex justify-content-around">
-                                <a href="{{ route('surat-camat.detailKeluar', $surat->id) }}" class="btn btn-info btn-sm">
+                                <a href="{{ route('surat-camat.detailDisposisi', $surat->id) }}" class="btn btn-info btn-sm">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <!-- <a href="{{ route('surat-camat.editKeluar', $surat->id) }}" class="btn btn-warning btn-sm">
-                                    <i class="fas fa-edit"></i>
-                                </a> -->
                             </div>
                         </td>
                     </tr>

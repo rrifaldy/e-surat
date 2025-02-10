@@ -74,6 +74,12 @@
                     <span>Surat Keluar</span></a>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link" href="/surat-disposisi-camat">
+                    <i class="fas fa-envelope"></i>
+                    <span>Surat Disposisi</span></a>
+            </li>
+
             <!-- Divider -->
             <hr class="sidebar-divider">
 

@@ -2,13 +2,6 @@
 
 @section('content')
 
-<!-- <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Surat Masuk</h1>
-    <a href="{{ route('surat-admin.createMasuk') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-        <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Surat
-    </a>
-</div> -->
-
 @if(session('success'))
 <div class="alert alert-success alert-dismissible fade show" role="alert">
     {{ session('success') }}
@@ -36,6 +29,7 @@
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
+                        <th>No</th>
                         <th>Nomor Surat</th>
                         <th>Pengirim</th>
                         <th>Tanggal Terima</th>
@@ -44,8 +38,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($suratMasuk as $surat)
+                    @foreach($suratMasuk as $index => $surat)
                     <tr>
+                        <td>{{ $index + 1 }}</td>
                         <td>{{ $surat->nomor_surat }}</td>
                         <td>{{ $surat->pengirim }}</td>
                         <td>{{ $surat->tanggal_surat }}</td>

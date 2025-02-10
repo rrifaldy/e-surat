@@ -27,6 +27,12 @@ class SuratKeluarAdmin extends Model
         return $this->hasOne(SuratMasukDesa::class, 'id_surat_keluar', 'id');
     }
 
+    // Relasi ke SuratDisposisiCamat
+    public function suratDisposisiCamat()
+    {
+        return $this->hasOne(SuratDisposisiCamat::class, 'id_surat_keluar', 'id');
+    }
+
     // Scope untuk filter berdasarkan tujuan surat (desa)
     public function scopeByDesa($query, $desa)
     {
