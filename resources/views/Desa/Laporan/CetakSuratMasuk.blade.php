@@ -86,7 +86,6 @@
                 <th>Tanggal Terima</th>
                 <th>Perihal</th>
                 <th>Sifat</th>
-                <th>Status</th>
             </tr>
         </thead>
         <tbody>
@@ -99,7 +98,6 @@
                 <td>{{ \Carbon\Carbon::parse($surat->tanggal_surat)->format('d-m-Y') }}</td>
                 <td>{{ $surat->perihal }}</td>
                 <td>{{ $surat->sifat }}</td>
-                <td>{{ $surat->status }}</td>
             </tr>
             @endforeach
         </tbody>
