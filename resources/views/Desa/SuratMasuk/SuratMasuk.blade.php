@@ -36,6 +36,7 @@
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
+                        <th>No</th> <!-- Tambahan kolom Nomor -->
                         <th>Nomor Surat</th>
                         <th>Pengirim</th>
                         <th>Penerima</th>
@@ -48,6 +49,7 @@
                 <tbody>
                     @forelse($suratMasuk as $surat)
                     <tr>
+                        <td>{{ $loop->iteration }}</td> <!-- Nomor urut otomatis -->
                         <td>{{ $surat->nomor_surat }}</td>
                         <td>{{ $surat->pengirim }}</td>
                         <td>{{ $surat->penerima }}</td>
@@ -64,7 +66,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center">Tidak ada surat masuk untuk desa ini.</td>
+                        <td colspan="8" class="text-center">Tidak ada surat masuk untuk desa ini.</td>
                     </tr>
                     @endforelse
                 </tbody>

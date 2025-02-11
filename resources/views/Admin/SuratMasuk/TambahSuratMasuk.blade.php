@@ -18,13 +18,7 @@
             </div>
             <div class="form-group">
                 <label for="pengirim">Pengirim</label>
-                <select class="form-control" id="pengirim" name="pengirim" required>
-                    <option value="Desa Cijayana">Desa Cijayana</option>
-                    <option value="Desa Jagabaya">Desa Jagabaya</option>
-                    <option value="Desa Karangwangi">Desa Karangwangi</option>
-                    <option value="Desa Mekarmukti">Desa Mekarmukti</option>
-                    <option value="Desa Mekarsari">Desa Mekarsari</option>
-                </select>
+                <input type="text" class="form-control" id="pengirim" name="pengirim" required>
             </div>
             <div class="form-group">
                 <label for="tanggal_surat">Tanggal Terima</label>

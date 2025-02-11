@@ -1,4 +1,5 @@
 @extends('layouts.SidebarAdmin')
+
 @section('content')
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -35,6 +36,7 @@
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
+                        <th>No</th> <!-- Tambahan kolom Nomor -->
                         <th>Nomor Surat</th>
                         <th>Tujuan</th>
                         <th>Tanggal Kirim</th>
@@ -45,6 +47,7 @@
                 <tbody>
                     @foreach ($suratKeluar as $surat)
                     <tr>
+                        <td>{{ $loop->iteration }}</td> <!-- Nomor urut otomatis -->
                         <td>{{ $surat->nomor_surat }}</td>
                         <td>{{ $surat->tujuan_surat }}</td>
                         <td>{{ $surat->tanggal_surat }}</td>

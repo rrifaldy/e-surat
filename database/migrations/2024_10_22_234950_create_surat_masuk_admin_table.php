@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('nomor_surat');
             $table->string('pengirim');
-            $table->string('penerima');
             $table->date('tanggal_surat');
             $table->string('perihal');
             $table->string('sifat');
