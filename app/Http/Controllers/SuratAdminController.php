@@ -94,7 +94,6 @@ class SuratAdminController extends Controller
     {
         $suratMasuk = SuratMasukAdmin::findOrFail($id);
 
-        // Hapus file lampiran jika ada
         if ($suratMasuk->lampiran) {
             Storage::disk('public')->delete($suratMasuk->lampiran);
         }
@@ -125,7 +124,6 @@ class SuratAdminController extends Controller
 
     public function storeKeluar(Request $request)
     {
-        // Validasi data input
         $validatedData = $request->validate([
             'nomor_surat' => 'required|string|max:255',
             'tujuan_surat' => 'required|string|max:255',
@@ -135,15 +133,12 @@ class SuratAdminController extends Controller
             'lampiran' => 'nullable|file|max:2048',
         ]);
 
-        // Jika ada lampiran, simpan file ke penyimpanan
         if ($request->hasFile('lampiran')) {
             $validatedData['lampiran'] = $request->file('lampiran')->store('lampiran_surat_keluar', 'public');
         }
 
-        // Buat surat keluar di tabel SuratKeluarAdmin
         $suratKeluar = SuratKeluarAdmin::create($validatedData);
 
-        // Tambahkan surat ke tabel SuratDisposisiCamat dengan status "Belum Ditandatangani"
         SuratDisposisiCamat::create([
             'id_surat_keluar' => $suratKeluar->id,
             'nomor_surat' => $validatedData['nomor_surat'],
@@ -295,7 +290,6 @@ class SuratAdminController extends Controller
 
     public function storeKeluarCamat(Request $request)
     {
-        // Validasi data input
         $validatedData = $request->validate([
             'nomor_surat' => 'required|string|max:255',
             'tujuan_surat' => 'required|string|max:255',
@@ -305,15 +299,12 @@ class SuratAdminController extends Controller
             'lampiran' => 'nullable|file|max:2048',
         ]);
 
-        // Jika ada lampiran, simpan file ke penyimpanan
         if ($request->hasFile('lampiran')) {
             $validatedData['lampiran'] = $request->file('lampiran')->store('lampiran_surat_keluar', 'public');
         }
 
-        // Buat surat keluar di tabel SuratKeluarAdmin
         $suratKeluar = SuratKeluarAdmin::create($validatedData);
 
-        // Tambahkan data ke SuratMasukDesa jika tujuan adalah desa
         if (str_contains($validatedData['tujuan_surat'], 'Desa')) {
             SuratMasukDesa::create([
                 'nomor_surat' => $validatedData['nomor_surat'],
@@ -327,7 +318,6 @@ class SuratAdminController extends Controller
             ]);
         }
 
-        // Redirect kembali ke halaman daftar surat keluar
         return redirect()->route('surat-camat.indexKeluarCamat')->with('success', 'Surat keluar berhasil dikirim ke surat masuk desa.');
     }
 

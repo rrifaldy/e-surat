@@ -7,7 +7,6 @@
 
 <div class="row">
 
-    <!-- Total Surat Masuk Card Example -->
     <div class="col-xl-4 col-md-6 mb-4">
         <div class="card border-left-primary shadow h-100 py-2">
             <div class="card-body">
@@ -25,7 +24,6 @@
         </div>
     </div>
 
-    <!-- Total Surat Keluar Card Example -->
     <div class="col-xl-4 col-md-6 mb-4">
         <div class="card border-left-success shadow h-100 py-2">
             <div class="card-body">
@@ -43,7 +41,6 @@
         </div>
     </div>
 
-    <!-- Proses Surat Card Example -->
     <div class="col-xl-4 col-md-6 mb-4">
         <div class="card border-left-info shadow h-100 py-2">
             <div class="card-body">
@@ -157,7 +154,6 @@
         });
     });
 
-    // Fungsi untuk format angka
     function number_format(number, decimals, dec_point, thousands_sep) {
         number = (number + '').replace(',', '').replace(' ', '');
         var n = !isFinite(+number) ? 0 : +number,

@@ -62,7 +62,6 @@
 </head>
 
 <body>
-    <!-- Kop Surat -->
     <div class="kop-surat">
         <h2>PEMERINTAH KABUPATEN GARUT</h2>
         <h3>KECAMATAN MEKARMUKTI</h3>
@@ -72,10 +71,8 @@
         </p>
     </div>
 
-    <!-- Judul Laporan -->
     <h2>Laporan Surat Masuk</h2>
 
-    <!-- Tabel Laporan -->
     <table>
         <thead>
             <tr>

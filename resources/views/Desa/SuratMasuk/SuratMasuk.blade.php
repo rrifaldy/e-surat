@@ -36,7 +36,7 @@
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
-                        <th>No</th> <!-- Tambahan kolom Nomor -->
+                        <th>No</th>
                         <th>Nomor Surat</th>
                         <th>Pengirim</th>
                         <th>Penerima</th>
@@ -49,7 +49,7 @@
                 <tbody>
                     @forelse($suratMasuk as $surat)
                     <tr>
-                        <td>{{ $loop->iteration }}</td> <!-- Nomor urut otomatis -->
+                        <td>{{ $loop->iteration }}</td>
                         <td>{{ $surat->nomor_surat }}</td>
                         <td>{{ $surat->pengirim }}</td>
                         <td>{{ $surat->penerima }}</td>

@@ -54,7 +54,6 @@
             </table>
         </div>
 
-        <!-- Kembali Button -->
         <div class="d-flex justify-content-end">
             <a href="{{ route('desa.surat-keluar.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Kembali

@@ -20,14 +20,10 @@ class SuratDesaController extends Controller
         return view('Desa.SuratKeluar.SuratKeluar', compact('suratKeluar'));
     }
 
-    // Show form to create new Surat Keluar
     public function createKeluar()
     {
         return view('Desa.SuratKeluar.TambahSuratKeluar');
     }
-
-    // Store new Surat Keluar
-
 
     public function storeKeluar(Request $request)
     {
@@ -40,7 +36,6 @@ class SuratDesaController extends Controller
             'lampiran' => 'nullable|file',
         ]);
 
-        // Menyimpan lampiran untuk Surat Keluar
         if ($request->hasFile('lampiran')) {
             $lampiranSuratKeluar = $request->file('lampiran')->store('lampiran_surat_keluar', 'public');
             $validatedData['lampiran'] = $lampiranSuratKeluar;
@@ -49,10 +44,8 @@ class SuratDesaController extends Controller
         $desaUser = Auth::user()->desa;
         $validatedData['pengirim'] = "Desa " . $desaUser;
 
-        // Membuat Surat Keluar
         $suratKeluar = SuratKeluarDesa::create($validatedData);
 
-        // Distribusi ke Surat Masuk terkait
         if (!empty($request->tujuan_surat)) {
             $lampiranSuratMasuk = null;
 
@@ -60,11 +53,9 @@ class SuratDesaController extends Controller
                 $fileName = basename($lampiranSuratKeluar);
                 $lampiranSuratMasuk = 'lampiran_surat_masuk/' . $fileName;
 
-                // Salin file lampiran
                 Storage::disk('public')->copy($lampiranSuratKeluar, $lampiranSuratMasuk);
             }
 
-            // Distribusi surat masuk
             if ($request->tujuan_surat === 'Kepala Camat') {
                 \App\Models\SuratMasukAdmin::create([
                     'nomor_surat' => $validatedData['nomor_surat'],
@@ -93,15 +84,12 @@ class SuratDesaController extends Controller
         return redirect()->route('desa.surat-keluar.index')->with('success', 'Surat keluar berhasil ditambahkan.');
     }
 
-
-    // Show form to edit existing Surat Keluar
     public function editKeluar($id)
     {
         $suratKeluar = SuratKeluarDesa::findOrFail($id);
         return view('Desa.SuratKeluar.EditSuratKeluar', compact('suratKeluar'));
     }
 
-    // Update existing Surat Keluar
     public function updateKeluar(Request $request, $id)
     {
         $suratKeluar = SuratKeluarDesa::findOrFail($id);
@@ -128,7 +116,6 @@ class SuratDesaController extends Controller
         return redirect()->route('desa.surat-keluar.index')->with('success', 'Surat keluar berhasil diperbarui.');
     }
 
-    // Delete Surat Keluar
     public function destroyKeluar($id)
     {
         $suratKeluar = SuratKeluarDesa::findOrFail($id);
@@ -140,14 +127,12 @@ class SuratDesaController extends Controller
         return redirect()->route('desa.surat-keluar.index')->with('success', 'Surat keluar berhasil dihapus');
     }
 
-    // Show details of Surat Keluar
     public function detailKeluar($id)
     {
         $suratKeluar = SuratKeluarDesa::findOrFail($id);
         return view('Desa.SuratKeluar.DetailSuratKeluar', compact('suratKeluar'));
     }
 
-    // Surat Masuk
     public function indexMasuk()
     {
         $desaUser = Auth::user()->desa;
@@ -216,7 +201,6 @@ class SuratDesaController extends Controller
             $dataSuratKeluar[] = $suratKeluarPerBulan->get($i, 0);
         }
 
-        // Kirim semua data ke view
         return view('Desa.Home', compact('totalSuratMasuk', 'totalSuratKeluar', 'dataSuratMasuk', 'dataSuratKeluar'));
     }
 

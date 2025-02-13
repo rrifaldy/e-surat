@@ -36,7 +36,7 @@
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
-                        <th>No</th> <!-- Tambahan kolom Nomor -->
+                        <th>No</th>
                         <th>Nomor Surat</th>
                         <th>Pengirim</th>
                         <th>Tanggal Terima</th>
@@ -47,7 +47,7 @@
                 <tbody>
                     @foreach($suratMasuk as $index => $surat)
                     <tr>
-                        <td>{{ $index + 1 }}</td> <!-- Nomor urut -->
+                        <td>{{ $index + 1 }}</td>
                         <td>{{ $surat->nomor_surat }}</td>
                         <td>{{ $surat->pengirim }}</td>
                         <td>{{ $surat->tanggal_surat }}</td>

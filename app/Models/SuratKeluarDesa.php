@@ -21,13 +21,11 @@ class SuratKeluarDesa extends Model
         'lampiran',
     ];
 
-    // Tambahkan relasi ke SuratMasukDesa
     public function suratMasuk()
     {
         return $this->hasOne(SuratMasukDesa::class, 'id_surat_keluar', 'id');
     }
 
-    // Relasi ke SuratMasukAdmin
     public function suratMasukAdmin()
     {
         return $this->hasOne(SuratMasukAdmin::class, 'id_surat_keluar', 'id');

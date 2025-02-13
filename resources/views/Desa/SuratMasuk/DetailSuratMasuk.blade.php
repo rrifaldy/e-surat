@@ -25,7 +25,7 @@
             </tr>
             <tr>
                 <th>Tanggal Terima</th>
-                <td>{{ $suratMasuk->created_at->format('Y-m-d') }}</td> <!-- Format Tanggal Terima -->
+                <td>{{ $suratMasuk->created_at->format('Y-m-d') }}</td>
             </tr>
             <tr>
                 <th>Perihal</th>
@@ -49,7 +49,6 @@
             </tr>
         </table>
 
-        <!-- Tombol Kembali -->
         <div class="d-flex justify-content-end mt-3">
             <a href="{{ route('desa.surat-masuk.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Kembali

@@ -13,19 +13,16 @@
     <div class="card-body">
         <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <!-- Nama Lengkap -->
             <div class="form-group">
                 <label for="nama_lengkap">Nama Lengkap</label>
                 <input type="text" class="form-control" id="nama_lengkap" name="nama_lengkap" placeholder="Masukkan Nama Lengkap" required>
             </div>
 
-            <!-- Email -->
             <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" class="form-control" id="email" name="email" placeholder="Masukkan Email" required>
             </div>
 
-            <!-- Role -->
             <div class="form-group">
                 <label for="role">Role</label>
                 <select class="form-control" id="role" name="role" required>
@@ -35,7 +32,6 @@
                 </select>
             </div>
 
-            <!-- Desa (optional for Admin and Camat) -->
             <div class="form-group">
                 <label for="desa">Desa</label>
                 <select class="form-control" id="desa" name="desa">
@@ -48,25 +44,21 @@
                 </select>
             </div>
 
-            <!-- Alamat -->
             <div class="form-group">
                 <label for="alamat">Alamat</label>
                 <input type="text" class="form-control" id="alamat" name="alamat" placeholder="Masukkan Alamat" required>
             </div>
 
-            <!-- Nomor HP -->
             <div class="form-group">
                 <label for="nomor_hp">Nomor HP</label>
                 <input type="number" class="form-control" id="nomor_hp" name="nomor_hp" placeholder="Masukkan Nomor HP" required>
             </div>
 
-            <!-- Tanggal Lahir -->
             <div class="form-group">
                 <label for="tanggal_lahir">Tanggal Lahir</label>
                 <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" required>
             </div>
 
-            <!-- Jenis Kelamin -->
             <div class="form-group">
                 <label for="jenis_kelamin">Jenis Kelamin</label>
                 <select class="form-control" id="jenis_kelamin" name="jenis_kelamin" required>
@@ -75,7 +67,6 @@
                 </select>
             </div>
 
-            <!-- Password -->
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" class="form-control" id="password" name="password" placeholder="Masukkan Password" required>
