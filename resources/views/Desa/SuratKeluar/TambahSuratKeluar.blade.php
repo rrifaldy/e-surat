@@ -15,7 +15,7 @@
             @csrf
             <div class="form-group">
                 <label for="nomor_surat">Nomor Surat</label>
-                <input type="text" class="form-control" id="nomor_surat" name="nomor_surat" required>
+                <input type="text" class="form-control" id="nomor_surat" name="nomor_surat" value="{{ $nomorSurat }}" readonly>
             </div>
             <div class="form-group">
                 <label for="tanggal_surat">Tanggal Surat</label>

@@ -22,13 +22,14 @@ class SuratDesaController extends Controller
 
     public function createKeluar()
     {
-        return view('Desa.SuratKeluar.TambahSuratKeluar');
+        $nomorSurat = $this->getNomorSuratDesa();
+        return view('Desa.SuratKeluar.TambahSuratKeluar', compact('nomorSurat'));
     }
 
     public function storeKeluar(Request $request)
     {
         $validatedData = $request->validate([
-            'nomor_surat' => 'required',
+            'nomor_surat' => 'required|unique:surat_keluar_desa,nomor_surat',
             'tanggal_surat' => 'required|date',
             'tujuan_surat' => 'required',
             'perihal' => 'required',
@@ -44,6 +45,11 @@ class SuratDesaController extends Controller
         $desaUser = Auth::user()->desa;
         $validatedData['pengirim'] = "Desa " . $desaUser;
 
+        // Cek apakah nomor surat sudah ada sebelum menyimpan
+        if (SuratKeluarDesa::where('nomor_surat', $validatedData['nomor_surat'])->exists()) {
+            return redirect()->back()->withErrors(['nomor_surat' => 'Nomor surat sudah digunakan.'])->withInput();
+        }
+
         $suratKeluar = SuratKeluarDesa::create($validatedData);
 
         if (!empty($request->tujuan_surat)) {
@@ -52,37 +58,30 @@ class SuratDesaController extends Controller
             if (!empty($lampiranSuratKeluar)) {
                 $fileName = basename($lampiranSuratKeluar);
                 $lampiranSuratMasuk = 'lampiran_surat_masuk/' . $fileName;
-
                 Storage::disk('public')->copy($lampiranSuratKeluar, $lampiranSuratMasuk);
             }
 
+            $dataSuratMasuk = [
+                'nomor_surat' => $validatedData['nomor_surat'],
+                'tanggal_surat' => $validatedData['tanggal_surat'],
+                'pengirim' => $validatedData['pengirim'],
+                'perihal' => $validatedData['perihal'],
+                'sifat' => $validatedData['sifat'],
+                'lampiran' => $lampiranSuratMasuk,
+                'id_surat_keluar' => $suratKeluar->id,
+                'penerima' => $validatedData['tujuan_surat'],
+            ];
+
             if ($request->tujuan_surat === 'Kepala Camat') {
-                \App\Models\SuratMasukAdmin::create([
-                    'nomor_surat' => $validatedData['nomor_surat'],
-                    'tanggal_surat' => $validatedData['tanggal_surat'],
-                    'pengirim' => $validatedData['pengirim'],
-                    'perihal' => $validatedData['perihal'],
-                    'sifat' => $validatedData['sifat'],
-                    'lampiran' => $lampiranSuratMasuk,
-                    'id_surat_keluar' => $suratKeluar->id,
-                    'penerima' => $validatedData['tujuan_surat'],
-                ]);
+                \App\Models\SuratMasukAdmin::create($dataSuratMasuk);
             } else {
-                \App\Models\SuratMasukDesa::create([
-                    'nomor_surat' => $validatedData['nomor_surat'],
-                    'tanggal_surat' => $validatedData['tanggal_surat'],
-                    'pengirim' => $validatedData['pengirim'],
-                    'perihal' => $validatedData['perihal'],
-                    'sifat' => $validatedData['sifat'],
-                    'lampiran' => $lampiranSuratMasuk,
-                    'id_surat_keluar' => $suratKeluar->id,
-                    'penerima' => $validatedData['tujuan_surat'],
-                ]);
+                \App\Models\SuratMasukDesa::create($dataSuratMasuk);
             }
         }
 
         return redirect()->route('desa.surat-keluar.index')->with('success', 'Surat keluar berhasil ditambahkan.');
     }
+
 
     public function editKeluar($id)
     {
@@ -218,5 +217,27 @@ class SuratDesaController extends Controller
 
         return view('Desa.Home', compact('dataSuratMasukPerPengirim'));
     }
+
+    public function getNomorSuratDesa()
+    {
+        $bulanTahun = date('my');
+        $kode = 'SK/Desa/PMD';
+
+        do {
+            $lastSurat = SuratKeluarDesa::where('nomor_surat', 'LIKE', "%/$bulanTahun/$kode")
+                ->orderBy('nomor_surat', 'desc')
+                ->first();
+
+            $urutan = $lastSurat ? intval(explode('/', $lastSurat->nomor_surat)[0]) + 1 : 1;
+
+            $nomorSurat = str_pad($urutan, 3, '0', STR_PAD_LEFT) . "/$bulanTahun/$kode";
+
+            $exists = SuratKeluarDesa::where('nomor_surat', $nomorSurat)->exists();
+        } while ($exists);
+
+        return $nomorSurat;
+    }
+
+
 
 }

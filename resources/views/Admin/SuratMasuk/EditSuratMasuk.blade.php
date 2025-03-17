@@ -15,7 +15,7 @@
             @method('PUT')
             <div class="form-group">
                 <label for="nomor_surat">Nomor Surat</label>
-                <input type="text" class="form-control" id="nomor_surat" name="nomor_surat" value="{{ old('nomor_surat', $suratMasuk->nomor_surat) }}" required>
+                <input type="text" class="form-control" id="nomor_surat" name="nomor_surat" value="{{ old('nomor_surat', $suratMasuk->nomor_surat) }}" readonly required>
             </div>
             <div class="form-group">
                 <label for="pengirim">Pengirim</label>

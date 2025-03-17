@@ -29,7 +29,8 @@ class SuratAdminController extends Controller
 
     public function createMasuk()
     {
-        return view('Admin.SuratMasuk.TambahSuratMasuk');
+        $nomorSurat = $this->getNomorSuratMasukCamat();
+        return view('Admin.SuratMasuk.TambahSuratMasuk', compact('nomorSurat'));
     }
 
     public function detailMasukAdmin($id)
@@ -41,13 +42,18 @@ class SuratAdminController extends Controller
     public function storeMasuk(Request $request)
     {
         $validatedData = $request->validate([
-            'nomor_surat' => 'required',
-            'pengirim' => 'required',
+            'nomor_surat' => 'required|string|max:255|unique:surat_masuk_admin,nomor_surat',
+            'pengirim' => 'required|string|max:255',
             'tanggal_surat' => 'required|date',
-            'perihal' => 'required',
-            'sifat' => 'required',
-            'lampiran' => 'nullable|file',
+            'perihal' => 'required|string',
+            'sifat' => 'required|string',
+            'lampiran' => 'nullable|file|max:2048',
         ]);
+
+        // Cek manual apakah nomor surat sudah ada
+        if (SuratMasukAdmin::where('nomor_surat', $validatedData['nomor_surat'])->exists()) {
+            return redirect()->back()->withErrors(['nomor_surat' => 'Nomor surat sudah digunakan.'])->withInput();
+        }
 
         if ($request->hasFile('lampiran')) {
             $validatedData['lampiran'] = $request->file('lampiran')->store('lampiran_surat_masuk', 'public');
@@ -55,7 +61,7 @@ class SuratAdminController extends Controller
 
         SuratMasukAdmin::create($validatedData);
 
-        return redirect()->route('surat-admin.indexMasuk')->with('success', 'Surat masuk berhasil ditambahkan');
+        return redirect()->route('surat-admin.indexMasuk')->with('success', 'Surat masuk berhasil ditambahkan.');
     }
 
     public function updateMasuk(Request $request, $id)
@@ -119,39 +125,65 @@ class SuratAdminController extends Controller
 
     public function createKeluar()
     {
-        return view('Admin.SuratKeluar.TambahSuratKeluar');
+        $nomorSurat = $this->getNomorSuratCamat();
+        return view('Admin.SuratKeluar.TambahSuratKeluar', compact('nomorSurat'));
     }
 
     public function storeKeluar(Request $request)
-    {
-        $validatedData = $request->validate([
-            'nomor_surat' => 'required|string|max:255',
-            'tujuan_surat' => 'required|string|max:255',
-            'tanggal_surat' => 'required|date',
-            'perihal' => 'required|string',
-            'sifat' => 'required|string',
-            'lampiran' => 'nullable|file|max:2048',
-        ]);
-
-        if ($request->hasFile('lampiran')) {
-            $validatedData['lampiran'] = $request->file('lampiran')->store('lampiran_surat_keluar', 'public');
+{
+    // Jika ada file lampiran, cek apakah formatnya PDF
+    if ($request->hasFile('lampiran')) {
+        $file = $request->file('lampiran');
+        if ($file->getClientOriginalExtension() !== 'pdf') {
+            return redirect()->route('surat-admin.indexKeluar')->with('error', 'Lampiran harus berupa file PDF.');
         }
-
-        $suratKeluar = SuratKeluarAdmin::create($validatedData);
-
-        SuratDisposisiCamat::create([
-            'id_surat_keluar' => $suratKeluar->id,
-            'nomor_surat' => $validatedData['nomor_surat'],
-            'pengirim' => "Admin Kecamatan",
-            'penerima' => $validatedData['tujuan_surat'],
-            'tanggal_surat' => $validatedData['tanggal_surat'],
-            'perihal' => $validatedData['perihal'],
-            'sifat' => $validatedData['sifat'],
-            'lampiran' => $validatedData['lampiran'] ?? null,
-            'status' => 'Belum Ditandatangani',
-        ]);
-        return redirect()->route('surat-admin.indexKeluar')->with('success', 'Surat keluar berhasil dibuat.');
     }
+
+    // Validasi input
+    $validatedData = $request->validate([
+        'nomor_surat' => 'required|string|max:255|unique:surat_keluar_admin,nomor_surat',
+        'tujuan_surat' => 'required|string|max:255',
+        'tanggal_surat' => 'required|date',
+        'perihal' => 'required|string',
+        'sifat' => 'required|string',
+        'lampiran' => 'nullable|file|mimes:pdf',
+    ]);
+
+    // Cek apakah nomor surat sudah ada (jaga-jaga jika validasi sebelumnya tidak bekerja)
+    if (SuratKeluarAdmin::where('nomor_surat', $request->nomor_surat)->exists()) {
+        return redirect()->route('surat-admin.indexKeluar')->with('error', 'Nomor surat sudah digunakan.');
+    }
+
+    // Simpan file jika ada
+    $lampiranPath = $request->hasFile('lampiran') ? $request->file('lampiran')->store('lampiran_surat_keluar', 'public') : null;
+
+    // Simpan data surat keluar
+    $suratKeluar = SuratKeluarAdmin::create([
+        'nomor_surat' => $request->nomor_surat,
+        'tujuan_surat' => $request->tujuan_surat,
+        'tanggal_surat' => $request->tanggal_surat,
+        'perihal' => $request->perihal,
+        'sifat' => $request->sifat,
+        'lampiran' => $lampiranPath,
+    ]);
+
+    // Simpan data disposisi camat
+    SuratDisposisiCamat::create([
+        'id_surat_keluar' => $suratKeluar->id,
+        'nomor_surat' => $suratKeluar->nomor_surat,
+        'pengirim' => "Admin Kecamatan",
+        'penerima' => $suratKeluar->tujuan_surat,
+        'tanggal_surat' => $suratKeluar->tanggal_surat,
+        'perihal' => $suratKeluar->perihal,
+        'sifat' => $suratKeluar->sifat,
+        'lampiran' => $lampiranPath,
+        'status' => 'Belum Ditandatangani',
+    ]);
+
+    // Redirect dengan pesan sukses
+    return redirect()->route('surat-admin.indexKeluar')->with('success', 'Surat keluar berhasil dibuat.');
+}
+
 
     public function editKeluar($id)
     {
@@ -449,5 +481,38 @@ class SuratAdminController extends Controller
 
         return view('Camat.Home', compact('totalSuratMasuk', 'totalSuratKeluar', 'dataSuratMasuk', 'dataSuratKeluar', 'totalUsers'));
     }
+
+    public function getNomorSuratCamat()
+    {
+        $bulanTahun = date('my');
+        $kode = 'SK/Camat/PMD';
+
+        $lastSurat = SuratKeluarAdmin::where('nomor_surat', 'LIKE', "%/$bulanTahun/$kode")
+            ->orderBy('nomor_surat', 'desc')
+            ->first();
+
+        $urutan = $lastSurat ? intval(explode('/', $lastSurat->nomor_surat)[0]) + 1 : 1;
+
+        $nomorSurat = str_pad($urutan, 3, '0', STR_PAD_LEFT) . "/$bulanTahun/$kode";
+
+        return $nomorSurat;
+    }
+
+    public function getNomorSuratMasukCamat()
+    {
+        $bulanTahun = date('my');
+        $kode = 'SM/Camat/PMD';
+
+        $lastSurat = SuratMasukAdmin::where('nomor_surat', 'LIKE', "%/$bulanTahun/$kode")
+            ->orderBy('nomor_surat', 'desc')
+            ->first();
+
+        $urutan = $lastSurat ? intval(explode('/', $lastSurat->nomor_surat)[0]) + 1 : 1;
+
+        $nomorSurat = str_pad($urutan, 3, '0', STR_PAD_LEFT) . "/$bulanTahun/$kode";
+
+        return $nomorSurat;
+    }
+
 
 }
